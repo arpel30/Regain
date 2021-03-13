@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "51578170855",
+    "firebase_url": "https://regain-cd78c-default-rtdb.firebaseio.com",
+    "project_id": "regain-cd78c",
+    "storage_bucket": "regain-cd78c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:51578170855:android:e9862500bdf6d0b168a142",
+        "android_client_info": {
+          "package_name": "com.example.regain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "51578170855-d0ibdclh5s1gqjc6qrdcbmdro9dtfq0f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcU-7LOt5oC3cTl7fhNTDBDFiXbQhegmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "51578170855-d0ibdclh5s1gqjc6qrdcbmdro9dtfq0f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
