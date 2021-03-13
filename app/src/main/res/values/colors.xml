@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="DARK_RED">#990F02</color>
+    <color name="DARK_GREY">#606060</color>
+    <color name="LIGHT_GREY">#C0C0C0</color>
+    <color name="TRANSPARENT">#00FFFFFF</color>
+    <color name="RED">#F44336</color>
+    <color name="APPROVE_GREEN">#00AB66</color>
+    <color name="DECLINE_RED">#ED1313</color>
+    <color name="WHATSAPP_BG">#dcf8c6</color>
 </resources>

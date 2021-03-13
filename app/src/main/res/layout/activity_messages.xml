@@ -5,25 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/WHATSAPP_BG"
-    tools:context=".MainActivity"
+    tools:context=".Messages_Activity"
     android:fitsSystemWindows="true"
+    android:layoutDirection="rtl"
     >
 
     <TextView
-        android:id="@+id/main_LBL_name"
+        android:id="@+id/messages_LBL_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:maxLines="1"
-        android:text="WhatsApp"
         android:textColor="@color/black"
         android:textSize="30dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/main_LST_contacts"
+        android:id="@+id/messages_LST_messages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/main_LBL_name" />
+        android:layout_below="@id/messages_LBL_name" />
 
 
 </RelativeLayout>

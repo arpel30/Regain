@@ -1,28 +1,44 @@
 package com.example.regain;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Notification;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.service.notification.NotificationListenerService;
-import android.util.Log;
+import android.util.Patterns;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.net.CookieHandler;
-import java.net.ResponseCache;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity implements MyListener{
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
-//    static MyListener listener;
-    private TextView main_LBL_notifications;
-    public static final String NOTIFICATION_CHANNEL_ID = "10001" ;
-    private final static String default_notification_channel_id = "default" ;
+public class MainActivity extends AppCompatActivity implements MyListener {
+
+    //    static MyListener listener;
+    private RecyclerView main_LST_contacts;
+    private ArrayList<String> contacts;
+    private Adapter_Contacts adapter_contacts;
+
+    private TextView main_LBL_name;
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
+    private final static String default_notification_channel_id = "default";
+
+    private DatabaseReference divRef;
+    private ValueEventListener newContact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements MyListener{
         setContentView(R.layout.activity_main);
 //        getNot();
         findViews();
-        initViews();
+        getContacts();
+
         NotificationListener nl = new NotificationListener();
         nl.setListener(this);
 //        new NotificationListener();
@@ -60,14 +77,86 @@ public class MainActivity extends AppCompatActivity implements MyListener{
     }
 
 
+    public void getContacts() {
+        newContact = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                getAllContacts(snapshot.getChildren());
+                initViews();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        String userName = getUserName();
+        if (!userName.equals("Unknown")) {
+            divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH);
+            divRef.addValueEventListener(newContact);
+        }
+//        return contacts;
+    }
+
+    private String getUserName() {
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+        Account[] accounts = AccountManager.get(getApplicationContext()).getAccounts();
+        if (accounts.length > 0) {
+            String domain = getDomain(accounts[0].name);
+            return domain;
+        }
+        return "Unknown";
+    }
+
+    private String getDomain(String email) {
+        String domain = "";
+        for (int i = 0; i < email.length(); i++) {
+            if (email.charAt(i) == '@')
+                break;
+            if (email.charAt(i) != '.')
+                domain += email.charAt(i);
+        }
+        String tmp = domain.replace("com", "");
+//        Log.d("aaa", tmp);
+        return tmp;
+    }
+
+    private void getAllContacts(Iterable<DataSnapshot> children) {
+        contacts = new ArrayList<>();
+        for (DataSnapshot child : children) {
+            String con = child.getKey();
+            contacts.add(con);
+//                DatabaseReference divRef = MyFirebase.getInstance().getFdb().getReference(Constants.WORKER_PATH);
+//                divRef = divRef.child(req.getUid());
+//                divRef.addValueEventListener(workerChangedListener);
+        }
+    }
+
     private void findViews() {
-        this.main_LBL_notifications = findViewById(R.id.main_LBL_notifications);
+        this.main_LBL_name = findViewById(R.id.main_LBL_name);
+        this.main_LST_contacts = findViewById(R.id.main_LST_contacts);
 //        main_LBL_notifications.setText("");
     }
 
     private void initViews() {
 //        Log.d("aaa", this.main_LBL_notifications+"");
-                main_LBL_notifications.setText("");
+        adapter_contacts = new Adapter_Contacts(this, contacts);
+        adapter_contacts.setClickListener(new Adapter_Contacts.MyItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+//                Toast.makeText(MainActivity.this, contacts.get(position), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, Messages_Activity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra(Constants.NAME_KEY, contacts.get(position));
+                startActivity(intent);
+
+//                finish();
+            }
+        });
+
+        main_LST_contacts.setLayoutManager(new LinearLayoutManager(this));
+        main_LST_contacts.setAdapter(adapter_contacts);
+        //main_LBL_name.setText("");
     }
 
     //    @Override
@@ -92,28 +181,28 @@ public class MainActivity extends AppCompatActivity implements MyListener{
 //    }
 //}
     public void getNot() {
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService( NOTIFICATION_SERVICE ) ;
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity. this, default_notification_channel_id ) ;
-        mBuilder.setContentTitle( "My Notification" ) ;
-        mBuilder.setContentText( "Notification Listener Service Example" ) ;
-        mBuilder.setTicker( "Notification Listener Service Example" ) ;
-        mBuilder.setSmallIcon(R.drawable. ic_launcher_foreground ) ;
-        mBuilder.setAutoCancel( true ) ;
-        if (android.os.Build.VERSION. SDK_INT >= android.os.Build.VERSION_CODES. O ) {
-            int importance = NotificationManager. IMPORTANCE_HIGH ;
-            NotificationChannel notificationChannel = new NotificationChannel( NOTIFICATION_CHANNEL_ID , "NOTIFICATION_CHANNEL_NAME" , importance) ;
-            mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID ) ;
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, default_notification_channel_id);
+        mBuilder.setContentTitle("My Notification");
+        mBuilder.setContentText("Notification Listener Service Example");
+        mBuilder.setTicker("Notification Listener Service Example");
+        mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        mBuilder.setAutoCancel(true);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
             assert mNotificationManager != null;
-            mNotificationManager.createNotificationChannel(notificationChannel) ;
+            mNotificationManager.createNotificationChannel(notificationChannel);
         }
         assert mNotificationManager != null;
 //        mNotificationManager.notify(( int ) System. currentTimeMillis () , mBuilder.build()) ;
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS" ) ;
-        startActivity(intent) ;
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent);
     }
 
     @Override
     public void setValue(String message) {
-        main_LBL_notifications.setText(main_LBL_notifications.getText()+"\n"+message);
+        main_LBL_name.setText(main_LBL_name.getText() + "\n" + message);
     }
 }

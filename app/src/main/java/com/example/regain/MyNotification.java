@@ -1,17 +1,26 @@
 package com.example.regain;
 
 public class MyNotification {
-    String app;
-    String contact;
-    String text;
+    private String app;
+    private String contact;
+    private String text;
+    private long time;
 
     public MyNotification() {
     }
 
-    public MyNotification(String app, String contact, String text) {
+    public MyNotification(String app, String contact, String text, long time) {
         this.app = app;
         this.contact = contact;
         this.text = text;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public String getApp() {
