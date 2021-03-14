@@ -4,11 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/WHATSAPP_BG"
+    android:background="@drawable/user_bg"
     tools:context=".Messages_Activity"
     android:fitsSystemWindows="true"
     android:layoutDirection="rtl"
     >
+
+    <RelativeLayout
+        android:id="@+id/messages_LAY_upper"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:background="@color/WHATSAPP_GREY">
 
     <TextView
         android:id="@+id/messages_LBL_name"
@@ -16,14 +22,16 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:maxLines="1"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
+        android:layout_centerInParent="true"
         android:textSize="30dp" />
 
+    </RelativeLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages_LST_messages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/messages_LBL_name" />
+        android:layout_below="@id/messages_LAY_upper" />
 
 
 </RelativeLayout>

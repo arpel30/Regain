@@ -15,4 +15,6 @@
     <color name="APPROVE_GREEN">#00AB66</color>
     <color name="DECLINE_RED">#ED1313</color>
     <color name="WHATSAPP_BG">#dcf8c6</color>
+    <color name="WHATSAPP_GREY">#075E54</color>
+    <color name="WHATSAPP_DARK_GREY">#06584E</color>
 </resources>

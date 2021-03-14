@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="30dp"
-    android:elevation="2dp"
-    app:cardElevation="2dp"
     android:layoutDirection="rtl"
     >
 
@@ -17,38 +13,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/item_message_bg"
-        tools:context=".MainActivity"
-        android:layoutDirection="rtl">
+        android:layoutDirection="rtl"
+        tools:context=".MainActivity">
 
         <TextView
             android:id="@+id/message_LBL_text"
-            android:text="אהלן"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMaxTextSize="30sp"
-            android:autoSizeMinTextSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
-            android:textColor="@color/black"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
-            />
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeTextType="uniform"
+            android:text="אהלן"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/message_LBL_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="   20:00  12/13/2020   "
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="5dp"
+            android:layout_below="@id/message_LBL_text"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_below="@id/message_LBL_text"
-            />
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
+            android:text="   20:00  12/13"
+            android:textColor="@color/black"
+            android:textSize="15sp" />
     </RelativeLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

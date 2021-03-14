@@ -37,7 +37,7 @@ public class Adapter_Messages extends RecyclerView.Adapter<Adapter_Messages.MyVi
         Message message = messages.get(position);
         holder.message_LBL_text.setText(message.getText());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy   HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM  HH:mm");
         Date resultdate = new Date(message.getTime());
         holder.message_LBL_date.setText(sdf.format(resultdate));
 
