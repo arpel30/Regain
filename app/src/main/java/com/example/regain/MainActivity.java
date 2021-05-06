@@ -3,17 +3,22 @@ package com.example.regain;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.core.Context;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -44,13 +50,13 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        getNot();
+        getNot(); // need to write a function to check permissions
         findViews();
         getContacts();
 
         NotificationListener nl = new NotificationListener();
         nl.setListener(this);
-//        new NotificationListener();
+        new NotificationListener();
 //        txtView = findViewById(R.id.main_LBL_notifications) ;
 //        Button btnCreateNotification = findViewById(R.id. btnCreateNotification ) ;
 //        btnCreateNotification.setOnClickListener( new View.OnClickListener() {
@@ -181,24 +187,26 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 //    }
 //}
     public void getNot() {
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, default_notification_channel_id);
-        mBuilder.setContentTitle("My Notification");
-        mBuilder.setContentText("Notification Listener Service Example");
-        mBuilder.setTicker("Notification Listener Service Example");
-        mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
-        mBuilder.setAutoCancel(true);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
-            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+        if(!Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName())) {
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, default_notification_channel_id);
+            mBuilder.setContentTitle("My Notification");
+            mBuilder.setContentText("Notification Listener Service Example");
+            mBuilder.setTicker("Notification Listener Service Example");
+            mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
+            mBuilder.setAutoCancel(true);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+                mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+                if (mNotificationManager != null)
+                    mNotificationManager.createNotificationChannel(notificationChannel);
+            }
             assert mNotificationManager != null;
-            mNotificationManager.createNotificationChannel(notificationChannel);
-        }
-        assert mNotificationManager != null;
 //        mNotificationManager.notify(( int ) System. currentTimeMillis () , mBuilder.build()) ;
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-        startActivity(intent);
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startActivity(intent);
+        }
     }
 
     @Override
