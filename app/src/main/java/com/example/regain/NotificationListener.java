@@ -10,6 +10,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.icu.text.CaseMap;
 import android.media.RingtoneManager;
 import android.os.Build;
@@ -18,11 +23,13 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
@@ -53,6 +60,8 @@ public class NotificationListener extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        Log.d("aaaa", "sbn : " + sbn.toString());
+        Log.d("aaaa", "sbn : " + sbn.getNotification().toString());
 //        super.onNotificationPosted(sbn);
 //        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)){
 //            Parcelable b[] = (Parcelable[]) extras.get(Notification.EXTRA_MESSAGES);
@@ -71,17 +80,38 @@ public class NotificationListener extends NotificationListenerService {
 //        }
         i++;
         try {
+            Bitmap bmp = null;
             long time = sbn.getPostTime();
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy");
             Date resultdate = new Date(time);
             String date = sdf.format(resultdate);
+            Notification not = sbn.getNotification();
 
             String pack = sbn.getPackageName();
             String ticker = "";
             if (sbn.getNotification().tickerText != null) {
                 ticker = sbn.getNotification().tickerText.toString();
             }
-            Bundle extras = sbn.getNotification().extras;
+            Bundle extras = not.extras;
+//            extras.getParcelable()
+            Log.d("aaaaa", "extras "+extras);
+
+            if (extras.containsKey(Notification.EXTRA_PICTURE)) {
+                // this bitmap contain the picture attachment
+                Log.d("aaaa", "contains image");
+                bmp = (Bitmap) extras.get(Notification.EXTRA_PICTURE);
+                Log.d("aaaa", "image " + bmp);
+            }else
+                Log.d("aaaa", "not contains image");
+
+//            Drawable drawable = icon.loadDrawable(getApplicationContext());
+//            bmp = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
+//            Canvas c = new Canvas(bmp);
+//            drawable.setBounds(new Rect(0, 0, 150, 150));
+//            drawable.draw(c);
+            Log.d("aaaa", "image " + bmp);
+
+
             String title = extras.getString("android.title");
             String text = extras.getCharSequence("android.text").toString();
 
@@ -99,6 +129,10 @@ public class NotificationListener extends NotificationListenerService {
 //            else {
 //                listener.setValue(pack + ":" + title + " : " + text);
             String userName = getUserName();
+            if(sbn.getPackageName().equals("com.whatsapp")) {
+                Icon icon = not.getLargeIcon();
+                saveProfilePicture(icon, userName, getDomain(title));
+            }
 //            String serial = getUserSerial();
             MyNotification notification = new MyNotification(pack, title, text, time);
 //                Log.d("aaab", userName);
@@ -107,6 +141,11 @@ public class NotificationListener extends NotificationListenerService {
                 sendNotification(title);
             else if (saveMessage(notification)) {
                 FirebaseDatabase.getInstance().getReference(userName).child(getDomain(pack)).child(getDomain(title)).child(sha256(pack + ":" + title + " : " + text + date)).setValue(new Message(time, text));
+                if(bmp != null){
+                    String encoded_image = Constants.IMAGE_KEY + encodeTobase64(bmp);
+                    Log.d("aaaa", "saving image");
+                    FirebaseDatabase.getInstance().getReference(userName).child(getDomain(pack)).child(getDomain(title)).child(sha256(pack + ":" + title + " : " + encoded_image + date)).setValue(new Message(time, encoded_image));
+                }
             }
 //                 FirebaseDatabase.getInstance().getReference("Arad").child("WhatsApp").child(getDomain("Ammie")).child(sha256(pack + ":" + title + " : " + text)).setValue(text);
 //                 Log.d("aaab", userName);
@@ -127,6 +166,30 @@ public class NotificationListener extends NotificationListenerService {
         } catch (Exception e) {
             Log.d("aaa", "Exception: " + sbn);
         }
+    }
+
+    public void saveProfilePicture(Icon icon, String userName, String title){
+        Log.d("aaaa", "saving profile pic");
+        Drawable drawable = icon.loadDrawable(getApplicationContext());
+        Bitmap bmp = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
+        drawable.setBounds(new Rect(0, 0, 150, 150));
+        drawable.draw(c);
+        String pic = encodeTobase64(bmp);
+        FirebaseDatabase.getInstance().getReference(userName).child(getDomain(Constants.WHATSAPP_PATH)).child(getDomain(title)).child("profile_pic").setValue(pic);
+
+    }
+
+    // method for bitmap to base64
+    public static String encodeTobase64(Bitmap image) {
+        Bitmap immage = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+
+//        Log.d("aaaa", "image encoded : "+imageEncoded);
+        return imageEncoded;
     }
 
     private void sendNotification(String title) {
@@ -230,3 +293,16 @@ public class NotificationListener extends NotificationListenerService {
         }
     }
 }
+// extras Bundle[{android.title=שקד❤, android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@2e16c7fe], android.text=סבבה, android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{4e647f1 com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=608]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@cb5dd9ca, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=996], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2886223, android.isGroupConversation=false}]
+// extras Bundle[{android.title=תמונת המסך נשמרה, android.reduced.images=true, android.template=android.app.Notification$BigPictureStyle, android.text=הקש כאן כדי לפתוח את הפריט ב'גלריה'., android.largeIcon.big=null, android.appInfo=ApplicationInfo{af32f1c com.samsung.android.app.smartcapture}, android.picture=android.graphics.Bitmap@d8dc725, android.showWhen=true, android.substName=צילום Samsung, android.largeIcon=Icon(typ=BITMAP size=95x95)}]
+
+// /  [{android.hiddenConversationTitle=null,android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@2e16c7fe], android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{4e647f1 com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=608]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@cb5dd9ca, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=996], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2886223, android.isGroupConversation=false}]
+//  [{android.template=android.app.Notification$BigPictureStyle, android.largeIcon.big=null, android.appInfo=ApplicationInfo{af32f1c com.samsung.android.app.smartcapture}, android.picture=android.graphics.Bitmap@d8dc725, android.showWhen=true, android.substName=צילום Samsung, android.largeIcon=Icon(typ=BITMAP size=95x95)}]
+
+// extras Bundle[{android.title=שקד❤, android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@2e16c7fe], android.text=סבבה, android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{4e647f1 com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=608]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@cb5dd9ca, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=996], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2886223, android.isGroupConversation=false}]
+// extras Bundle[{android.title=אפקה, android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@74c2305d], android.text=📷 קח, android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{920b14f com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=864]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@f6692658, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=3816], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2886238, android.isGroupConversation=false}]
+// 2021-05-27 18:07:25.322 11117-11117/com.example.regain D/aaaaa: extras Bundle[{android.title=נועה אפקה, android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@74c2305d], android.text=📷 קח, android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{bc5c90a com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=612]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@c2524e8b, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=3816], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2886238, android.isGroupConversation=false}]
+
+//2021-05-27 18:07:29.190 11117-11117/com.example.regain D/aaaa: sbn : StatusBarNotification(pkg=com.whatsapp user=UserHandle{0} id=1 tag=so0wU9GptAxVk3pxSoqvrKXNOYvnbXHY4jjBc+Fj6rs=
+//     key=0|com.whatsapp|1|so0wU9GptAxVk3pxSoqvrKXNOYvnbXHY4jjBc+Fj6rs=
+//    |10342: Notification(channel=silent_notifications_3 shortcut=972543188799@s.whatsapp.net contentView=null vibrate=null sound=null defaults=0x0 flags=0x8 color=0xff075e54 groupKey=group_key_messages sortKey=1 actions=2 vis=PRIVATE publicVersion=Notification(channel=null shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x0 color=0xff075e54 category=msg vis=PRIVATE semFlags=0x0 semPriority=0 semMissedCount=0) semFlags=0x0 semPriority=0 semMissedCount=0))

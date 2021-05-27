@@ -8,10 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -23,9 +27,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class Messages_Activity extends AppCompatActivity {
 
     private TextView messages_LBL_name;
+    private ImageView messages_IMG_profile;
     private RecyclerView messages_LST_messages;
     private Adapter_Messages adapter_messages;
     private String contactName;
@@ -44,6 +51,12 @@ public class Messages_Activity extends AppCompatActivity {
         getMessages();
     }
 
+    // method for base64 to bitmap
+    public static Bitmap decodeBase64(String input) {
+        byte[] decodedByte = Base64.decode(input, 0);
+        return BitmapFactory
+                .decodeByteArray(decodedByte, 0, decodedByte.length);
+    }
 
     public void getMessages(){
         newMessage = new ValueEventListener() {
@@ -65,6 +78,18 @@ public class Messages_Activity extends AppCompatActivity {
         if (!userName.equals("Unknown")) {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName);
             divRef.addValueEventListener(newMessage);
+            FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName).child("profile_pic").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+
+                    messages_IMG_profile.setImageBitmap(decodeBase64(snapshot.getValue(String.class)));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+
+                }
+            });
         }
     }
 
@@ -94,6 +119,8 @@ public class Messages_Activity extends AppCompatActivity {
     private void getAllMessages(Iterable<DataSnapshot> children) {
         messages = new ArrayList<>();
         for (DataSnapshot child : children) {
+            if(child.getKey().equals(Constants.PROFILE_PIC))
+                continue;
             Message message = child.getValue(Message.class);
 //            String con = child.getKey();
             messages.add(message);
@@ -106,6 +133,7 @@ public class Messages_Activity extends AppCompatActivity {
     private void findViews() {
         messages_LBL_name = findViewById(R.id.messages_LBL_name);
         messages_LST_messages = findViewById(R.id.messages_LST_messages);
+        messages_IMG_profile = findViewById(R.id.messages_IMG_profile);
 //        main_LBL_notifications.setText("");
     }
 
