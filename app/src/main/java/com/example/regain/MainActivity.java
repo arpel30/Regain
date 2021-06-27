@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
         getNot(); // need to write a function to check permissions
         findViews();
         getContacts();
-
+        Log.d("aaa", "Build : " + MyUtils.getBuildNumber());
         NotificationListener nl = new NotificationListener();
         nl.setListener(this);
         new NotificationListener();
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
             }
         };
-        String userName = getUserName();
+        String userName = MyUtils.getUserName(this);
         if (!userName.equals("Unknown")) {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH);
             divRef.addValueEventListener(newContact);
@@ -104,28 +105,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 //        return contacts;
     }
 
-    private String getUserName() {
-        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-        Account[] accounts = AccountManager.get(getApplicationContext()).getAccounts();
-        if (accounts.length > 0) {
-            String domain = getDomain(accounts[0].name);
-            return domain;
-        }
-        return "Unknown";
-    }
-
-    private String getDomain(String email) {
-        String domain = "";
-        for (int i = 0; i < email.length(); i++) {
-            if (email.charAt(i) == '@')
-                break;
-            if (email.charAt(i) != '.')
-                domain += email.charAt(i);
-        }
-        String tmp = domain.replace("com", "");
-//        Log.d("aaa", tmp);
-        return tmp;
-    }
 
     private void getAllContacts(Iterable<DataSnapshot> children) {
         contacts = new ArrayList<>();

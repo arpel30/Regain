@@ -51,12 +51,6 @@ public class Messages_Activity extends AppCompatActivity {
         getMessages();
     }
 
-    // method for base64 to bitmap
-    public static Bitmap decodeBase64(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
 
     public void getMessages(){
         newMessage = new ValueEventListener() {
@@ -82,7 +76,7 @@ public class Messages_Activity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
 
-                    messages_IMG_profile.setImageBitmap(decodeBase64(snapshot.getValue(String.class)));
+                    messages_IMG_profile.setImageBitmap(MyUtils.decodeBase64(snapshot.getValue(String.class)));
                 }
 
                 @Override

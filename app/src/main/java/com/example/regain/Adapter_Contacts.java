@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,11 +16,13 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
     private List<String> contacts;
     private LayoutInflater mInflater;
     private MyItemClickListener mClickListener;
+    private Context context;
 
     // data is passed into the constructor
     Adapter_Contacts(Context context, List<String> _contacts) {
         this.mInflater = LayoutInflater.from(context);
         this.contacts = _contacts;
+        this.context = context;
     }
 
     // inflates the row layout from xml when needed
@@ -34,6 +37,8 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
     public void onBindViewHolder(MyViewHolder holder, int position) {
         String name = contacts.get(position);
         holder.contact_LBL_name.setText(name);
+        MyUtils.setProfilePicture(MyUtils.getUserName(context), holder.contact_IMG_profile, name);
+//        holder.contact_IMG_profile.setImageBitmap();
     }
 
     // total number of rows
@@ -62,10 +67,12 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView contact_LBL_name;
+        ImageView contact_IMG_profile;
 
         MyViewHolder(View itemView) {
             super(itemView);
             contact_LBL_name = itemView.findViewById(R.id.contact_LBL_name);
+            contact_IMG_profile = itemView.findViewById(R.id.contact_IMG_profile);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
