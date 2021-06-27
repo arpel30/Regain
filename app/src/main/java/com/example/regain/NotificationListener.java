@@ -184,7 +184,7 @@ public class NotificationListener extends NotificationListenerService {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, reqCode, intent, PendingIntent.FLAG_ONE_SHOT);
         String CHANNEL_ID = "channel_name";// The id of the channel.
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.reagin_logo_simple)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
