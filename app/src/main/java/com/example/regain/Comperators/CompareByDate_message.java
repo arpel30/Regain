@@ -1,6 +1,8 @@
-package com.example.regain;
+package com.example.regain.Comperators;
 
-public class CompareByDate implements java.util.Comparator<Message> {
+import com.example.regain.Classes.Message;
+
+public class CompareByDate_message implements java.util.Comparator<Message> {
        @Override
     public int compare(Message o1, Message o2) {
             if(o2.getTime() > o1.getTime())

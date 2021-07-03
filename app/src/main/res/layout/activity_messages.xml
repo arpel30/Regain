@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/user_bg"
-    tools:context=".Messages_Activity"
+    tools:context=".Activities.Messages_Activity"
     android:fitsSystemWindows="true"
     android:layoutDirection="rtl"
     >

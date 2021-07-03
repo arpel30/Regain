@@ -1,4 +1,4 @@
-package com.example.regain;
+package com.example.regain.Classes;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -21,12 +21,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 public class MyUtils {
     // method for base64 to bitmap
     public static Bitmap decodeBase64(String input) {
+        if(input == null || input.isEmpty())
+            return null;
         byte[] decodedByte = Base64.decode(input, 0);
         return BitmapFactory
                 .decodeByteArray(decodedByte, 0, decodedByte.length);
@@ -61,8 +62,9 @@ public class MyUtils {
             FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName).child("profile_pic").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-
-                    image.setImageBitmap(MyUtils.decodeBase64(snapshot.getValue(String.class)));
+                    Bitmap tmp = MyUtils.decodeBase64(snapshot.getValue(String.class));
+                    if(tmp != null)
+                        image.setImageBitmap(tmp);
                 }
 
                 @Override

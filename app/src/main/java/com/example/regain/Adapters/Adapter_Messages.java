@@ -1,4 +1,4 @@
-package com.example.regain;
+package com.example.regain.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,6 +12,10 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.regain.Classes.Constants;
+import com.example.regain.Classes.Message;
+import com.example.regain.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +27,7 @@ public class Adapter_Messages extends RecyclerView.Adapter<Adapter_Messages.MyVi
     private MyItemClickListener mClickListener;
 
     // data is passed into the constructor
-    Adapter_Messages(Context context, List<Message> _messages) {
+    public Adapter_Messages(Context context, List<Message> _messages) {
         this.mInflater = LayoutInflater.from(context);
         this.messages = _messages;
     }
@@ -36,6 +40,8 @@ public class Adapter_Messages extends RecyclerView.Adapter<Adapter_Messages.MyVi
     }
 
     public boolean isImage(String content){
+        if(content == null)
+            return false;
         if(content.length() <= Constants.IMAGE_KEY.length())
             return false;
         for(int i=0; i<Constants.IMAGE_KEY.length(); i++){

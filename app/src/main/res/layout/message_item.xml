@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/item_message_bg"
         android:layoutDirection="rtl"
-        tools:context=".MainActivity">
+        tools:context=".Activities.MainActivity">
         <RelativeLayout
             android:id="@+id/message_LAY_content"
             android:layout_width="wrap_content"

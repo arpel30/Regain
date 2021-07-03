@@ -1,48 +1,52 @@
-package com.example.regain;
+package com.example.regain.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.regain.Adapters.Adapter_Contacts;
+import com.example.regain.Classes.Constants;
+import com.example.regain.Classes.Contact;
+import com.example.regain.Classes.MyUtils;
+import com.example.regain.Comperators.CompareByDate_contact;
+import com.example.regain.MyListener;
+import com.example.regain.NotificationListener;
+import com.example.regain.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.core.Context;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements MyListener {
 
     //    static MyListener listener;
     private RecyclerView main_LST_contacts;
-    private ArrayList<String> contacts;
+    private ArrayList<Contact> contacts;
     private Adapter_Contacts adapter_contacts;
 
     private TextView main_LBL_name;
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
     private final static String default_notification_channel_id = "default";
+
+    private String userName = "Unknown";
 
     private DatabaseReference divRef;
     private ValueEventListener newContact;
@@ -51,8 +55,9 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getNot(); // need to write a function to check permissions
+        getNot();
         findViews();
+        userName = MyUtils.getUserName(this);
         getContacts();
         Log.d("aaa", "Build : " + MyUtils.getBuildNumber());
         NotificationListener nl = new NotificationListener();
@@ -97,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
             }
         };
-        String userName = MyUtils.getUserName(this);
         if (!userName.equals("Unknown")) {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH);
             divRef.addValueEventListener(newContact);
@@ -108,9 +112,35 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
     private void getAllContacts(Iterable<DataSnapshot> children) {
         contacts = new ArrayList<>();
+        long time = 0;
         for (DataSnapshot child : children) {
             String con = child.getKey();
-            contacts.add(con);
+
+            FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(con).child(Constants.TIME).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    Long tmp = snapshot.getValue(Long.class);
+                    if(tmp == null)
+                        tmp = 0l;
+                    Log.d("aaa", con + ":" + tmp);
+                    Contact tmp_con = new Contact(tmp, con);
+                    if(contacts.contains(tmp_con)){
+                        contacts.remove(tmp_con);
+                    }
+                    contacts.add(tmp_con);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        contacts.sort(new CompareByDate_contact());
+                    }
+                    adapter_contacts.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+
+                }
+            });
+
+            time-=200;
 //                DatabaseReference divRef = MyFirebase.getInstance().getFdb().getReference(Constants.WORKER_PATH);
 //                divRef = divRef.child(req.getUid());
 //                divRef.addValueEventListener(workerChangedListener);
@@ -124,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     }
 
     private void initViews() {
-//        Log.d("aaa", this.main_LBL_notifications+"");
         adapter_contacts = new Adapter_Contacts(this, contacts);
         adapter_contacts.setClickListener(new Adapter_Contacts.MyItemClickListener() {
             @Override
@@ -132,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 //                Toast.makeText(MainActivity.this, contacts.get(position), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, Messages_Activity.class);
 //                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(Constants.NAME_KEY, contacts.get(position));
+                intent.putExtra(Constants.NAME_KEY, contacts.get(position).getName());
                 startActivity(intent);
 
 //                finish();
@@ -191,5 +220,11 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     @Override
     public void setValue(String message) {
         main_LBL_name.setText(main_LBL_name.getText() + "\n" + message);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).removeEventListener(newContact);
     }
 }

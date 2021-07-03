@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.example.regain.Activities.MainActivity;
+
 public class MyService extends Service {
 
     private static final int NOTIF_ID = 1;

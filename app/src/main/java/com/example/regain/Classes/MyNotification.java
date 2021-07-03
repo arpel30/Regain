@@ -1,4 +1,4 @@
-package com.example.regain;
+package com.example.regain.Classes;
 
 public class MyNotification {
     private String app;

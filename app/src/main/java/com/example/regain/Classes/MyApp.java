@@ -1,9 +1,10 @@
-package com.example.regain;
+package com.example.regain.Classes;
 
 import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.regain.MyService;
 import com.judemanutd.autostarter.AutoStartPermissionHelper;
 
 public class MyApp extends Application {

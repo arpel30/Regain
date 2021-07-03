@@ -1,4 +1,4 @@
-package com.example.regain;
+package com.example.regain.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,16 +8,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.regain.Adapters.Adapter_Messages;
+import com.example.regain.Classes.Constants;
+import com.example.regain.Classes.Message;
+import com.example.regain.Classes.MyUtils;
+import com.example.regain.Comperators.CompareByDate_message;
+import com.example.regain.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,8 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Messages_Activity extends AppCompatActivity {
 
@@ -58,7 +59,7 @@ public class Messages_Activity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 getAllMessages(snapshot.getChildren());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    messages.sort(new CompareByDate());
+                    messages.sort(new CompareByDate_message());
                 }
                 initViews();
             }
@@ -113,7 +114,7 @@ public class Messages_Activity extends AppCompatActivity {
     private void getAllMessages(Iterable<DataSnapshot> children) {
         messages = new ArrayList<>();
         for (DataSnapshot child : children) {
-            if(child.getKey().equals(Constants.PROFILE_PIC))
+            if(child.getKey().equals(Constants.PROFILE_PIC) || child.getKey().equals(Constants.TIME))
                 continue;
             Message message = child.getValue(Message.class);
 //            String con = child.getKey();

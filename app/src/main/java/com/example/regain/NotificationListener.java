@@ -6,41 +6,33 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.icu.text.CaseMap;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Parcelable;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.regain.Activities.MainActivity;
+import com.example.regain.Classes.Constants;
+import com.example.regain.Classes.Message;
+import com.example.regain.Classes.MyNotification;
+import com.example.regain.Classes.MyUtils;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -119,6 +111,7 @@ public class NotificationListener extends NotificationListenerService {
             String text = "";
             String title = "";
             Boolean isGroup = extras.getBoolean("android.isGroupConversation");
+            String userName = getUserName();
             if(isGroup != null && isGroup){
                 // maybe in a later version - saves group chat messages
 //                title = extras.getString("android.hiddenConversationTitle");
@@ -129,7 +122,14 @@ public class NotificationListener extends NotificationListenerService {
                 text = extras.getCharSequence("android.text").toString();
             }
 
+            String selfTitle = extras.getCharSequence("android.selfDisplayName").toString();
+            Log.d("aaa", "self message = " + selfTitle);
 
+            if(title.equals(selfTitle)){
+                FirebaseDatabase.getInstance().getReference(userName).child(Constants.SELF_KEY).child(sha256(pack + ":" + title + " : " + text + date)).setValue(new Message(time, text));
+                Log.d("aaa", "it's just a self message bro");
+                return;
+            }
 //            int id1 = extras.getInt(Notification.EXTRA_SMALL_ICON);
 //            Bitmap id = sbn.getNotification().largeIcon;
 
@@ -143,10 +143,22 @@ public class NotificationListener extends NotificationListenerService {
 //                Log.d("aaa", "Listener is null"+", num : " + i);
 //            else {
 //                listener.setValue(pack + ":" + title + " : " + text);
-            String userName = getUserName();
             if(sbn.getPackageName().equals("com.whatsapp")) {
+
+                //            sbn : Notification(channel=silent_notifications_3 shortcut=972542145856@s.whatsapp.net contentView=null vibrate=null sound=null defaults=0x0 flags=0x8 color=0xff075e54 groupKey=group_key_messages sortKey=1 actions=2 vis=PRIVATE publicVersion=Notification(channel=null shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x0 color=0xff075e54 category=msg vis=PRIVATE semFlags=0x0 semPriority=0 semMissedCount=0) semFlags=0x0 semPriority=0 semMissedCount=0)
+//            extras Bundle[{android.title=עדי אחותי, android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@840e830e], android.text=📷 ‏תמונה, android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{d97789d com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=880]],                                      android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@97f82256, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=1012], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2939909, android.isGroupConversation=false}]
+//            extras Bundle[{android.title=שקד❤,     android.hiddenConversationTitle=null, android.reduced.images=true, android.subText=null, android.template=android.app.Notification$MessagingStyle, android.showChronometer=false, android.people.list=[android.app.Person@2e16c7fe], android.text=נ,           android.progress=0, android.progressMax=0, android.selfDisplayName=‏את/ה, android.conversationUnreadMessageCount=0, android.appInfo=ApplicationInfo{4f8a286 com.whatsapp}, android.messages=[Bundle[mParcelledData.dataSize=644], Bundle[mParcelledData.dataSize=600]], android.showWhen=true, android.largeIcon=Icon(typ=BITMAP size=95x95), android.messagingStyleUser=Bundle[mParcelledData.dataSize=432], android.messagingUser=android.app.Person@4b8cc67, android.infoText=null, android.wearable.EXTENSIONS=Bundle[mParcelledData.dataSize=996], android.progressIndeterminate=false, android.remoteInputHistory=null, last_row_id=2939908, android.isGroupConversation=false}]
+
+                // try to get images
+//                Bundle[] bundles = (Bundle[]) extras.getParcelableArray("android.messages");
+//                Log.d("aaa", "self message = " + bundles.toString());
+
+//content://com.android.contacts/contacts/lookup/0r388-27061E06.3551i3611c0190b55505a.3789r899-27061E06/933
+
                 Icon icon = not.getLargeIcon();
                 MyUtils.saveProfilePicture(icon, userName, getDomain(title), getApplicationContext());
+                Log.d("aaaa", ",name " + userName + ",path " + Constants.WHATSAPP_PATH + ",title " + title + ",TIME " + Constants.TIME + ",time " + time);
+                FirebaseDatabase.getInstance().getReference(userName).child(getDomain(Constants.WHATSAPP_PATH)).child(getDomain(title)).child(Constants.TIME).setValue(time);
             }
 //            String serial = getUserSerial();
             MyNotification notification = new MyNotification(pack, title, text, time);
@@ -162,7 +174,8 @@ public class NotificationListener extends NotificationListenerService {
                 }
             }
         } catch (Exception e) {
-            Log.d("aaa", "Exception: " + sbn);
+            Log.d("aaaaaa", "Exception s: " + sbn);
+            Log.d("aaaaaa", "Exception e: " + e.getMessage());
         }
     }
 
