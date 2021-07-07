@@ -42,17 +42,17 @@
             android:id="@+id/contact_LBL_name"
             android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
+            android:layout_height="match_parent"
+            android:gravity="right|center"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:autoSizeTextType="uniform"
             android:autoSizeMaxTextSize="30sp"
-            android:autoSizeMinTextSize="20sp"
+            android:autoSizeMinTextSize="15sp"
             android:maxLines="3"
             android:textColor="@color/black"
             android:layout_gravity="center"
-            android:textSize="30sp"
+            android:textSize="25sp"
             />
 
         <TextView

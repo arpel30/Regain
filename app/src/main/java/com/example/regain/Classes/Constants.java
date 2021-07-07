@@ -14,6 +14,7 @@ public class Constants {
     public static final String WHATSAPP_PATH = "whatsapp";
     public static final String PROFILE_PIC = "profile_pic";
     public static final String TIME = "time";
+    public static final long DAY_MILISEC = 86400000; // 1*1000*60*60*24
 //    public static final String NAME_KEY = "NAME_KEY";
 
 }

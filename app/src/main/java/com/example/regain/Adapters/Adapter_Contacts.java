@@ -2,6 +2,7 @@ package com.example.regain.Adapters;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.regain.Classes.Constants;
 import com.example.regain.Classes.Contact;
 import com.example.regain.Classes.MyUtils;
 import com.example.regain.R;
@@ -53,10 +55,13 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
 
     private String getTime(long time){
         String newTime = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM  HH:mm");
-//        SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM  HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         Date resultdate = new Date(time);
-        return (dateFormat.format(resultdate));
+        if(time < System.currentTimeMillis() - Constants.DAY_MILISEC){
+            return dateFormat.format(resultdate);
+        }else
+            return timeFormat.format(resultdate);
 //        return newTime;
     }
 
