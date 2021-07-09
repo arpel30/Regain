@@ -119,10 +119,11 @@ public class NotificationListener extends NotificationListenerService {
                 return;
             }else{
                 title = extras.getString("android.title");
-                text = getStringExtras("android.text");
+                text = extras.getCharSequence("android.text").toString();
             }
             String selfTitle = "";
-            selfTitle = getStringExtras("android.selfDisplayName");
+            if(sbn.getPackageName().equals("com.whatsapp"))
+                selfTitle = extras.getCharSequence("android.selfDisplayName").toString();
 
             Log.d("aaa", "self message = " + selfTitle);
 
@@ -227,19 +228,6 @@ public class NotificationListener extends NotificationListenerService {
         if (notification.getContact().contains(Constants.WHATSAPP))
             return false;
         return true;
-    }
-
-    public String getStringExtras(String key){
-        // get a string value from extras
-        try {
-            String tmp = extras.getCharSequence(key).toString();
-            if (tmp == null)
-                return "";
-            return tmp;
-        }catch (Exception e){
-            return "";
-        }
-
     }
 
     private String getDomain(String email) {
