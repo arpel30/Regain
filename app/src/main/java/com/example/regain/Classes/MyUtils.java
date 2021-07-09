@@ -1,8 +1,11 @@
 package com.example.regain.Classes;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,23 +13,28 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.ImageView;
 
+import androidx.core.app.ActivityCompat;
+
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class MyUtils {
     // method for base64 to bitmap
     public static Bitmap decodeBase64(String input) {
-        if(input == null || input.isEmpty())
+        if (input == null || input.isEmpty())
             return null;
         byte[] decodedByte = Base64.decode(input, 0);
         return BitmapFactory
@@ -45,7 +53,7 @@ public class MyUtils {
         return imageEncoded;
     }
 
-    public static void saveProfilePicture(Icon icon, String userName, String title, Context context){
+    public static void saveProfilePicture(Icon icon, String userName, String title, Context context) {
         Log.d("aaaa", "saving profile pic");
         Drawable drawable = icon.loadDrawable(context);
         Bitmap bmp = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
@@ -56,15 +64,17 @@ public class MyUtils {
         FirebaseDatabase.getInstance().getReference(userName).child(getDomain(Constants.WHATSAPP_PATH)).child(getDomain(title)).child("profile_pic").setValue(pic);
 
     }
-    public static void setProfilePicture(String userName, ImageView image, String contactName) {
+
+    public static void setProfilePicture(String userName, ImageView image, String contactName, Context context) {
         if (!userName.equals("Unknown")) {
 //            divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName);
             FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName).child("profile_pic").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     Bitmap tmp = MyUtils.decodeBase64(snapshot.getValue(String.class));
-                    if(tmp != null)
-                        image.setImageBitmap(tmp);
+                    if (tmp != null)
+//                        image.setImageBitmap(tmp);
+                        loadBitmapGlide(context, image, tmp);
                 }
 
                 @Override
@@ -74,6 +84,15 @@ public class MyUtils {
             });
         }
     }
+
+    public static void loadBitmapGlide(Context context, ImageView image, Bitmap tmp) {
+        Glide
+                .with(context.getApplicationContext())
+                .load(tmp)
+                .fitCenter()
+                .into(image);
+    }
+
     public static String getDomain(String email) {
         String domain = "";
         for (int i = 0; i < email.length(); i++) {
@@ -94,7 +113,34 @@ public class MyUtils {
             String domain = getDomain(accounts[0].name);
             return domain;
         }
-        return "Unknown";
+        // there is no account - create random value and save it
+        String val = MySPV.getInstance().getString(Constants.MY_ID, null);
+        Log.d("aaaaabb", "1 val = " + val);
+        // if value is not exist, create & save a new value
+        if(val == null){
+            Log.d("aaaaabb", "2 val = " + val);
+            val = saveLastID(context, Constants.MY_ID);
+            Log.d("aaaaabb", "3 val = " + val);
+            MySPV.getInstance().putString(Constants.MY_ID, val);
+        }
+        return val;
+    }
+
+    public static String saveLastID(Context context, String key){
+        FirebaseDatabase.getInstance().getReference(Constants.LAST_ID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                int id = snapshot.getValue(Integer.class);
+                Log.d("aaaaabb", "id = " + id);
+                FirebaseDatabase.getInstance().getReference(Constants.LAST_ID).setValue(id+1);
+                MySPV.getInstance().putString(key, id + UUID.randomUUID().toString());
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+            }
+        });
+        return MySPV.getInstance().getString(key, "Unknown"); // return the value we saved earlier
     }
 
     public static String getBuildNumber() {

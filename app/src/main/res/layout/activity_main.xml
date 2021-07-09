@@ -25,5 +25,14 @@
         android:layout_height="match_parent"
         android:layout_below="@id/main_LBL_name" />
 
+    <TextView
+        android:id="@+id/main_LBL_blocked"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:text="@string/BLOCKED"
+        android:textColor="@color/black"
+        android:textSize="30dp" />
 
 </RelativeLayout>

@@ -111,7 +111,7 @@ public class NotificationListener extends NotificationListenerService {
             String text = "";
             String title = "";
             Boolean isGroup = extras.getBoolean("android.isGroupConversation");
-            String userName = getUserName();
+            String userName = MyUtils.getUserName(getApplicationContext());
             if(isGroup != null && isGroup){
                 // maybe in a later version - saves group chat messages
 //                title = extras.getString("android.hiddenConversationTitle");
@@ -119,10 +119,11 @@ public class NotificationListener extends NotificationListenerService {
                 return;
             }else{
                 title = extras.getString("android.title");
-                text = extras.getCharSequence("android.text").toString();
+                text = getStringExtras("android.text");
             }
+            String selfTitle = "";
+            selfTitle = getStringExtras("android.selfDisplayName");
 
-            String selfTitle = extras.getCharSequence("android.selfDisplayName").toString();
             Log.d("aaa", "self message = " + selfTitle);
 
             if(title.equals(selfTitle)){
@@ -143,6 +144,7 @@ public class NotificationListener extends NotificationListenerService {
 //                Log.d("aaa", "Listener is null"+", num : " + i);
 //            else {
 //                listener.setValue(pack + ":" + title + " : " + text);
+
             if(sbn.getPackageName().equals("com.whatsapp")) {
 
                 //            sbn : Notification(channel=silent_notifications_3 shortcut=972542145856@s.whatsapp.net contentView=null vibrate=null sound=null defaults=0x0 flags=0x8 color=0xff075e54 groupKey=group_key_messages sortKey=1 actions=2 vis=PRIVATE publicVersion=Notification(channel=null shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x0 color=0xff075e54 category=msg vis=PRIVATE semFlags=0x0 semPriority=0 semMissedCount=0) semFlags=0x0 semPriority=0 semMissedCount=0)
@@ -227,14 +229,17 @@ public class NotificationListener extends NotificationListenerService {
         return true;
     }
 
-    private String getUserName() {
-        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-        Account[] accounts = AccountManager.get(getApplicationContext()).getAccounts();
-        if (accounts.length > 0) {
-            String domain = getDomain(accounts[0].name);
-            return domain;
+    public String getStringExtras(String key){
+        // get a string value from extras
+        try {
+            String tmp = extras.getCharSequence(key).toString();
+            if (tmp == null)
+                return "";
+            return tmp;
+        }catch (Exception e){
+            return "";
         }
-        return "Unknown";
+
     }
 
     private String getDomain(String email) {

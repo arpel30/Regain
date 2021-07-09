@@ -49,7 +49,7 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
         String name = contact.getName();
         holder.contact_LBL_name.setText(name);
         holder.contact_LBL_date.setText(getTime(contact.getTime()));
-        MyUtils.setProfilePicture(MyUtils.getUserName(context), holder.contact_IMG_profile, name);
+        MyUtils.setProfilePicture(MyUtils.getUserName(context), holder.contact_IMG_profile, name, context);
 //        holder.contact_IMG_profile.setImageBitmap();
     }
 

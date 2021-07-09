@@ -15,6 +15,10 @@ public class Constants {
     public static final String PROFILE_PIC = "profile_pic";
     public static final String TIME = "time";
     public static final long DAY_MILISEC = 86400000; // 1*1000*60*60*24
+    public static final String SP_FILE = "SP_FILE";
+    public static final String MY_ID = "MY_ID";
+    public static final String LAST_ID = "LastID";
+    public static final String Dictionary = "Dictionary";
 //    public static final String NAME_KEY = "NAME_KEY";
 
 }

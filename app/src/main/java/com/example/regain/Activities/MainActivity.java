@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.regain.Adapters.Adapter_Contacts;
 import com.example.regain.Classes.Constants;
@@ -32,8 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements MyListener {
 
@@ -43,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     private Adapter_Contacts adapter_contacts;
 
     private TextView main_LBL_name;
+    private TextView main_LBL_blocked;
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
     private final static String default_notification_channel_id = "default";
 
@@ -55,7 +54,9 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("aaabb", "before getNot");
         getNot();
+        Log.d("aaabb", "not = false");
         findViews();
         userName = MyUtils.getUserName(this);
         getContacts();
@@ -112,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
     private void getAllContacts(Iterable<DataSnapshot> children) {
         contacts = new ArrayList<>();
-        long time = 0;
         for (DataSnapshot child : children) {
             String con = child.getKey();
 
@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
                 }
             });
 
-            time-=200;
 //                DatabaseReference divRef = MyFirebase.getInstance().getFdb().getReference(Constants.WORKER_PATH);
 //                divRef = divRef.child(req.getUid());
 //                divRef.addValueEventListener(workerChangedListener);
@@ -149,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
     private void findViews() {
         this.main_LBL_name = findViewById(R.id.main_LBL_name);
+        this.main_LBL_blocked = findViewById(R.id.main_LBL_blocked);
         this.main_LST_contacts = findViewById(R.id.main_LST_contacts);
 //        main_LBL_notifications.setText("");
     }
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 //    }
 //}
     public void getNot() {
-        if(!Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName())) {
+        if(!checkPermission()) {
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, default_notification_channel_id);
             mBuilder.setContentTitle("My Notification");
@@ -212,9 +212,32 @@ public class MainActivity extends AppCompatActivity implements MyListener {
             }
             assert mNotificationManager != null;
 //        mNotificationManager.notify(( int ) System. currentTimeMillis () , mBuilder.build()) ;
+            Toast.makeText(this, "Notifications permission is required!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
+    }
+
+    public boolean checkPermission(){
+        return Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName());
+    }
+
+    public void setViews(boolean permissionGranted){
+        if(permissionGranted){
+            main_LBL_name.setVisibility(View.VISIBLE);
+            main_LST_contacts.setVisibility(View.VISIBLE);
+            main_LBL_blocked.setVisibility(View.INVISIBLE);
+        }else{
+            main_LBL_name.setVisibility(View.INVISIBLE);
+            main_LST_contacts.setVisibility(View.INVISIBLE);
+            main_LBL_blocked.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setViews(checkPermission());
     }
 
     @Override

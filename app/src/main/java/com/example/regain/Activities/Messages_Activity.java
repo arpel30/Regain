@@ -69,33 +69,14 @@ public class Messages_Activity extends AppCompatActivity {
 
             }
         };
-        String userName = getUserName();
+        String userName = MyUtils.getUserName(this);
         if (!userName.equals("Unknown")) {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName);
             divRef.addValueEventListener(newMessage);
-            FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName).child("profile_pic").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
+//            messages_IMG_profile.setImageBitmap(MyUtils.decodeBase64(snapshot.getValue(String.class)));
+            MyUtils.setProfilePicture(userName, messages_IMG_profile, contactName, this);
 
-                    messages_IMG_profile.setImageBitmap(MyUtils.decodeBase64(snapshot.getValue(String.class)));
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-
-                }
-            });
         }
-    }
-
-    private String getUserName() {
-        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-        Account[] accounts = AccountManager.get(getApplicationContext()).getAccounts();
-        if (accounts.length > 0) {
-            String domain = getDomain(accounts[0].name);
-            return domain;
-        }
-        return "Unknown";
     }
 
     private String getDomain(String email) {

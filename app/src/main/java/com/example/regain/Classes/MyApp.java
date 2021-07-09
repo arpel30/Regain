@@ -12,7 +12,7 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        MySPV.init(this);
         if(AutoStartPermissionHelper.getInstance().getAutoStartPermission(this))
             startService(new Intent(this, MyService.class));
         Log.d("aaa", "Start service");
