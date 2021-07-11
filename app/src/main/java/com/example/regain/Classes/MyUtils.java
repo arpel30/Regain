@@ -48,13 +48,10 @@ public class MyUtils {
         immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] b = baos.toByteArray();
         String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-
-//        Log.d("aaaa", "image encoded : "+imageEncoded);
         return imageEncoded;
     }
 
     public static void saveProfilePicture(Icon icon, String userName, String title, Context context) {
-        Log.d("aaaa", "saving profile pic");
         Drawable drawable = icon.loadDrawable(context);
         Bitmap bmp = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
@@ -67,13 +64,11 @@ public class MyUtils {
 
     public static void setProfilePicture(String userName, ImageView image, String contactName, Context context) {
         if (!userName.equals("Unknown")) {
-//            divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName);
             FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName).child("profile_pic").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     Bitmap tmp = MyUtils.decodeBase64(snapshot.getValue(String.class));
                     if (tmp != null)
-//                        image.setImageBitmap(tmp);
                         loadBitmapGlide(context, image, tmp);
                 }
 
@@ -102,7 +97,6 @@ public class MyUtils {
                 domain += email.charAt(i);
         }
         String tmp = domain.replace("com", "");
-//        Log.d("aaa", tmp);
         return tmp;
     }
 
@@ -118,9 +112,7 @@ public class MyUtils {
         Log.d("aaaaabb", "1 val = " + val);
         // if value is not exist, create & save a new value
         if(val == null){
-            Log.d("aaaaabb", "2 val = " + val);
             val = saveLastID(context, Constants.MY_ID);
-            Log.d("aaaaabb", "3 val = " + val);
             MySPV.getInstance().putString(Constants.MY_ID, val);
         }
         return val;
@@ -144,17 +136,12 @@ public class MyUtils {
     }
 
     public static String getBuildNumber() {
-        // problem with SDK >= Q
+        // problem with SDK >= Q - only system apps can get the build number
         String serialNumber;
-        Log.d("aaa","before");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && 3>4) {
-            Log.d("aaa","before - in if");
             serialNumber = Build.getSerial();
-            Log.d("aaa","after - in if");
         }else {
-            Log.d("aaa", "before - in else");
             serialNumber = android.os.Build.SERIAL;
-            Log.d("aaa", "after - in else");
         }
         return serialNumber;
     }

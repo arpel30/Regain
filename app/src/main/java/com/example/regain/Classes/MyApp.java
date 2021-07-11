@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 
-import com.example.regain.MyService;
+import com.example.regain.Services_Listeners.MyService;
 import com.judemanutd.autostarter.AutoStartPermissionHelper;
 
 public class MyApp extends Application {

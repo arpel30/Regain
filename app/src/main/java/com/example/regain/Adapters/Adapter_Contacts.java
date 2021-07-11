@@ -22,7 +22,6 @@ import java.util.List;
 
 public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyViewHolder> {
 
-//    private List<String> contacts;
     private List<Contact> contacts;
     private LayoutInflater mInflater;
     private MyItemClickListener mClickListener;
@@ -50,7 +49,6 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
         holder.contact_LBL_name.setText(name);
         holder.contact_LBL_date.setText(getTime(contact.getTime()));
         MyUtils.setProfilePicture(MyUtils.getUserName(context), holder.contact_IMG_profile, name, context);
-//        holder.contact_IMG_profile.setImageBitmap();
     }
 
     private String getTime(long time){
@@ -62,7 +60,6 @@ public class Adapter_Contacts extends RecyclerView.Adapter<Adapter_Contacts.MyVi
             return dateFormat.format(resultdate);
         }else
             return timeFormat.format(resultdate);
-//        return newTime;
     }
 
     // total number of rows

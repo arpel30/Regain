@@ -1,4 +1,4 @@
-package com.example.regain;
+package com.example.regain.Services_Listeners;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.regain.Activities.MainActivity;
+import com.example.regain.R;
 
 public class MyService extends Service {
 
@@ -25,8 +26,7 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-        // do your jobs here
-        Log.d("aaa", "Service Started");
+        Log.d("aaa", "Service Started onStartCommand");
         startForeground();
 
         return super.onStartCommand(intent, flags, startId);
@@ -34,21 +34,21 @@ public class MyService extends Service {
 
     private void startForeground() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        Log.d("aaa", "Service Started");
+        Log.d("aaa", "Service Started startForeground1");
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
-        Log.d("aaa", "Service Started");
+        Log.d("aaa", "Service Started startForeground2");
 
         startForeground(NOTIF_ID, new NotificationCompat.Builder(this,
                 NOTIF_CHANNEL_ID) // don't forget create a notification channel first
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle(getString(R.string.app_name))
-                .setContentText("Service is running background")
+                .setContentText("Service is running background startForeground")
                 .setContentIntent(pendingIntent)
                 .build());
-        Log.d("aaa", "Service Started");
+        Log.d("aaa", "Service Started startForeground3");
 
     }
 }

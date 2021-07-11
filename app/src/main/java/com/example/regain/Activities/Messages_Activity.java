@@ -73,7 +73,6 @@ public class Messages_Activity extends AppCompatActivity {
         if (!userName.equals("Unknown")) {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH).child(contactName);
             divRef.addValueEventListener(newMessage);
-//            messages_IMG_profile.setImageBitmap(MyUtils.decodeBase64(snapshot.getValue(String.class)));
             MyUtils.setProfilePicture(userName, messages_IMG_profile, contactName, this);
 
         }
@@ -88,7 +87,6 @@ public class Messages_Activity extends AppCompatActivity {
                 domain += email.charAt(i);
         }
         String tmp = domain.replace("com", "");
-//        Log.d("aaa", tmp);
         return tmp;
     }
 
@@ -98,11 +96,7 @@ public class Messages_Activity extends AppCompatActivity {
             if(child.getKey().equals(Constants.PROFILE_PIC) || child.getKey().equals(Constants.TIME))
                 continue;
             Message message = child.getValue(Message.class);
-//            String con = child.getKey();
             messages.add(message);
-//                DatabaseReference divRef = MyFirebase.getInstance().getFdb().getReference(Constants.WORKER_PATH);
-//                divRef = divRef.child(req.getUid());
-//                divRef.addValueEventListener(workerChangedListener);
         }
     }
 
@@ -110,18 +104,15 @@ public class Messages_Activity extends AppCompatActivity {
         messages_LBL_name = findViewById(R.id.messages_LBL_name);
         messages_LST_messages = findViewById(R.id.messages_LST_messages);
         messages_IMG_profile = findViewById(R.id.messages_IMG_profile);
-//        main_LBL_notifications.setText("");
     }
 
     private void initViews() {
-//        Log.d("aaa", this.main_LBL_notifications+"");
         messages_LBL_name.setText(contactName);
         adapter_messages = new Adapter_Messages(this, messages);
         messages_LST_messages.setLayoutManager(new LinearLayoutManager(this));
         messages_LST_messages.setAdapter(adapter_messages);
 
         scrollToBottom(messages_LST_messages);
-        //main_LBL_name.setText("");
     }
 
     private void scrollToBottom(final RecyclerView recyclerView) {

@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +21,7 @@ import com.example.regain.Classes.Constants;
 import com.example.regain.Classes.Contact;
 import com.example.regain.Classes.MyUtils;
 import com.example.regain.Comperators.CompareByDate_contact;
-import com.example.regain.MyListener;
+import com.example.regain.Services_Listeners.MyListener;
 import com.example.regain.NotificationListener;
 import com.example.regain.R;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MyListener {
 
-    //    static MyListener listener;
     private RecyclerView main_LST_contacts;
     private ArrayList<Contact> contacts;
     private Adapter_Contacts adapter_contacts;
@@ -54,39 +52,13 @@ public class MainActivity extends AppCompatActivity implements MyListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("aaabb", "before getNot");
         getNot();
-        Log.d("aaabb", "not = false");
         findViews();
         userName = MyUtils.getUserName(this);
         getContacts();
-        Log.d("aaa", "Build : " + MyUtils.getBuildNumber());
         NotificationListener nl = new NotificationListener();
         nl.setListener(this);
         new NotificationListener();
-//        txtView = findViewById(R.id.main_LBL_notifications) ;
-//        Button btnCreateNotification = findViewById(R.id. btnCreateNotification ) ;
-//        btnCreateNotification.setOnClickListener( new View.OnClickListener() {
-//            @Override
-//            public void onClick (View v) {
-//                NotificationManager mNotificationManager = (NotificationManager) getSystemService( NOTIFICATION_SERVICE ) ;
-//                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity. this, default_notification_channel_id ) ;
-//                mBuilder.setContentTitle( "My Notification" ) ;
-//                mBuilder.setContentText( "Notification Listener Service Example" ) ;
-//                mBuilder.setTicker( "Notification Listener Service Example" ) ;
-//                mBuilder.setSmallIcon(R.drawable. ic_launcher_foreground ) ;
-//                mBuilder.setAutoCancel( true ) ;
-//                if (android.os.Build.VERSION. SDK_INT >= android.os.Build.VERSION_CODES. O ) {
-//                    int importance = NotificationManager. IMPORTANCE_HIGH ;
-//                    NotificationChannel notificationChannel = new NotificationChannel( NOTIFICATION_CHANNEL_ID , "NOTIFICATION_CHANNEL_NAME" , importance) ;
-//                    mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID ) ;
-//                    assert mNotificationManager != null;
-//                    mNotificationManager.createNotificationChannel(notificationChannel) ;
-//                }
-//                assert mNotificationManager != null;
-//                mNotificationManager.notify(( int ) System. currentTimeMillis () , mBuilder.build()) ;
-//            }
-//        }) ;
     }
 
 
@@ -107,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
             divRef = FirebaseDatabase.getInstance().getReference(userName).child(Constants.WHATSAPP_PATH);
             divRef.addValueEventListener(newContact);
         }
-//        return contacts;
     }
 
 
@@ -122,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
                     Long tmp = snapshot.getValue(Long.class);
                     if(tmp == null)
                         tmp = 0l;
-                    Log.d("aaa", con + ":" + tmp);
                     Contact tmp_con = new Contact(tmp, con);
                     if(contacts.contains(tmp_con)){
                         contacts.remove(tmp_con);
@@ -139,10 +109,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
 
                 }
             });
-
-//                DatabaseReference divRef = MyFirebase.getInstance().getFdb().getReference(Constants.WORKER_PATH);
-//                divRef = divRef.child(req.getUid());
-//                divRef.addValueEventListener(workerChangedListener);
         }
     }
 
@@ -150,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements MyListener {
         this.main_LBL_name = findViewById(R.id.main_LBL_name);
         this.main_LBL_blocked = findViewById(R.id.main_LBL_blocked);
         this.main_LST_contacts = findViewById(R.id.main_LST_contacts);
-//        main_LBL_notifications.setText("");
     }
 
     private void initViews() {
@@ -158,60 +123,18 @@ public class MainActivity extends AppCompatActivity implements MyListener {
         adapter_contacts.setClickListener(new Adapter_Contacts.MyItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-//                Toast.makeText(MainActivity.this, contacts.get(position), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, Messages_Activity.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra(Constants.NAME_KEY, contacts.get(position).getName());
                 startActivity(intent);
-
-//                finish();
             }
         });
 
         main_LST_contacts.setLayoutManager(new LinearLayoutManager(this));
         main_LST_contacts.setAdapter(adapter_contacts);
-        //main_LBL_name.setText("");
     }
 
-    //    @Override
-//    public boolean onCreateOptionsMenu (Menu menu) {
-//        getMenuInflater().inflate(R.menu. menu_main , menu) ; //Menu Resource, Menu
-//        return true;
-//    }
-//    @Override
-//    public boolean onOptionsItemSelected (MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id. action_settings :
-//                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS" ) ;
-//                startActivity(intent) ;
-//                return true;
-//            default :
-//                return super .onOptionsItemSelected(item) ;
-//        }
-//    }
-//    @Override
-//    public void setValue (String packageName) {
-//        txtView .append( " \n " + packageName) ;
-//    }
-//}
     public void getNot() {
         if(!checkPermission()) {
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, default_notification_channel_id);
-            mBuilder.setContentTitle("My Notification");
-            mBuilder.setContentText("Notification Listener Service Example");
-            mBuilder.setTicker("Notification Listener Service Example");
-            mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
-            mBuilder.setAutoCancel(true);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
-                mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
-                if (mNotificationManager != null)
-                    mNotificationManager.createNotificationChannel(notificationChannel);
-            }
-            assert mNotificationManager != null;
-//        mNotificationManager.notify(( int ) System. currentTimeMillis () , mBuilder.build()) ;
             Toast.makeText(this, "Notifications permission is required!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);

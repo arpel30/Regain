@@ -70,7 +70,6 @@ public class Adapter_Messages extends RecyclerView.Adapter<Adapter_Messages.MyVi
 
         }else{
             Bitmap btm = decodeBase64(content.substring(Constants.IMAGE_KEY.length()-1, content.length()-1));
-//            Bitmap btm = decodeBase64(content);
             holder.message_LBL_image.setImageBitmap(btm);
             holder.message_LBL_image.setVisibility(View.VISIBLE);
             holder.message_LBL_text.setVisibility(View.GONE);
